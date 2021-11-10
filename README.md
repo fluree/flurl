@@ -16,3 +16,9 @@ Its name is a riff on curl since it kind of works similarly.
  - -h, --help            Print help
  - -s, --sign            Enable request signing
  - -k, --private-key KEY Provide a private key or file containing one to sign requests with (defaults to `./private-key.txt`)
+
+## Building
+
+You'll need a GraalVM JDK installed with the native-image tool to build a binary.
+You'll also need a recent version of the Clojure CLI tools.
+Once those are in place, you can build a binary for your host platform by running `make`.
