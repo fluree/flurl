@@ -1,0 +1,20 @@
+{:deps {org.clojure/clojure   {:mvn/version "1.10.3"}
+        org.clojure/tools.cli {:mvn/version "1.0.206"}
+        http-kit/http-kit     {:mvn/version "2.5.3"}
+        com.fluree/crypto     {:mvn/version "0.3.6"}
+        cheshire/cheshire     {:mvn/version "5.10.1"}
+        marker/marker         {:mvn/version "1.0.1"}}
+ :aliases 
+ {:native-image
+  {:main-opts ["-m" "clj.native-image" "flurl.core"
+               "-H:Name=flurl"
+               "--initialize-at-build-time"
+               "--initialize-at-run-time=org.httpkit.client.ClientSslEngineFactory$SSLHolder"
+               "--report-unsupported-elements-at-runtime"
+               "--no-fallback"
+               "--enable-url-protocols=http,https"]
+   :jvm-opts  ["-Dclojure.compiler.direct-linking=true"]
+   :extra-deps
+   {clj.native-image/clj.native-image
+    {:git/url "https://github.com/taylorwood/clj.native-image.git"
+     :sha "4604ae76855e09cdabc0a2ecc5a7de2cc5b775d6"}}}}}
