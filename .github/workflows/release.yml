@@ -7,8 +7,28 @@ on:
 #    tags:
 #      - v*
 jobs:
+  create-release:
+    name: create release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create-release.outputs.upload_url }}
+    steps:
+      - name: create release
+        id: create-release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: latest
+          release_name: Latest main branch build
+          body: |
+            Download the file for your OS, rename it to `flurl`, put in your
+            PATH somewhere, and make it executable (`chmod +x flurl`).
+            Note on macOS: You'll need to run `xattr -d com.apple.quarantine flurl` on it too.
+          draft: false
+          prerelease: false
   build:
-    runs-on: ${{matrix.os}}
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
@@ -32,27 +52,14 @@ jobs:
         run: gu install native-image
       - name: Build binary
         run: make
-      - name: create release
-        if: success()
-        id: create-release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        with:
-          tag_name: ${{github.ref}}
-          release_name: Latest main branch build
-          body: |
-            Note on macOS: You'll need to run `xattr -d com.apple.quarantine flurl` after downloading.
-          draft: false
-          prerelease: false
       - name: upload release asset
         if: success()
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{steps.create-release.outputs.upload_url}}
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
           asset_path: flurl
           asset_name: flurl-${{ startsWith(matrix.os, "macos") && 'macos' || 'linux' }}
           asset_content_type: application/octet-stream
