@@ -3,12 +3,15 @@ on:
   push:
     branches:
       - main
-# eventually just want to build version tags
+# in case we just want to build version tags someday
 #    tags:
-#      - v*.*.*
+#      - v*
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -37,9 +40,9 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
           tag_name: ${{github.ref}}
-          release_name: Release ${{github.ref}}
+          release_name: Latest main branch build
           body: |
-            Initial release
+            Note on macOS: You'll need to run `xattr -d com.apple.quarantine flurl` after downloading.
           draft: false
           prerelease: false
       - name: upload release asset
@@ -51,5 +54,5 @@ jobs:
         with:
           upload_url: ${{steps.create-release.outputs.upload_url}}
           asset_path: flurl
-          asset_name: flurl-macos
+          asset_name: flurl-${{ startsWith(matrix.os, "macos") && 'macos' || 'linux' }}
           asset_content_type: application/octet-stream
