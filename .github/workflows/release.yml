@@ -1,0 +1,55 @@
+name: build & release
+on:
+  push:
+    branches:
+      - main
+# eventually just want to build version tags
+#    tags:
+#      - v*.*.*
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Setup Clojure
+        uses: DeLaGuardo/setup-clojure@3.5
+        with:
+          cli: 1.10.3.1020
+      - name: Setup GraalVM
+        uses: DeLaGuardo/setup-graalvm@5.0
+        with:
+          graalvm: 21.3.0
+          java: 11
+      - name: Setup native-image
+        run: gu install native-image
+      - name: Build binary
+        run: make
+      - name: create release
+        if: success()
+        id: create-release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          tag_name: ${{github.ref}}
+          release_name: Release ${{github.ref}}
+          body: |
+            Initial release
+          draft: false
+          prerelease: false
+      - name: upload release asset
+        if: success()
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          upload_url: ${{steps.create-release.outputs.upload_url}}
+          asset_path: flurl
+          asset_name: flurl-macos
+          asset_content_type: application/octet-stream
