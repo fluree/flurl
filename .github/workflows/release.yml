@@ -24,7 +24,7 @@ jobs:
         uses: DeLaGuardo/setup-graalvm@5.0
         with:
           graalvm: 21.3.0
-          java: 11
+          java: java11
       - name: Setup native-image
         run: gu install native-image
       - name: Build binary
