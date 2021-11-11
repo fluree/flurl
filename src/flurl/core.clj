@@ -1,16 +1,12 @@
 (ns flurl.core
-  (:require [org.httpkit.client :as http]
-            [org.httpkit.sni-client :as sni-client]
-            [cheshire.core :as json]
+  (:require [cheshire.core :as json]
             [clojure.edn :as edn]
             [clojure.java.io :as io]
             [clojure.string :as str]
             [clojure.tools.cli :refer [parse-opts]]
-            [fluree.crypto :as crypto]
             [marker.core :refer [marker]]
             [flurl.debug :as debug]
             [flurl.ledger-client :as client])
-
   (:gen-class))
 
 (def private-key-regex #"^[a-fA-F0-9]{64}$")
@@ -30,7 +26,7 @@
     :default (get-private-key "./private-key.txt")
     :default-desc "./private-key.txt"
     :parse-fn get-private-key
-    :validate [#(re-matches private-key-regex %) "Must be 64 hex digits"]]])
+    :validate [#(and % (re-matches private-key-regex %) "Must be 64 hex digits")]]])
 
 (defn usage [options-summary]
   (->> ["flurl is for sending and optionally signing API requests to Fluree ledger server's HTTP API"
@@ -57,9 +53,12 @@
       errors
       {:exit-message (error-msg errors)}
 
+      (and (:sign options) (not (:private-key options)))
+      {:exit-message (error-msg ["Request signing requires a valid private key"])}
+
       (< 0 (count arguments) 3)
       {:endpoint (first arguments) :req-data (second arguments) :options options}
-      
+
       :else
       {:exit-message (usage summary)})))
 
@@ -67,10 +66,9 @@
   (println msg)
   (System/exit status))
 
-
 (defn run [{:keys [endpoint req-data options]}]
   (when (:debug options) (debug/activate!))
-  (let [private-key (get-private-key (:private-key options))
+  (let [private-key (:private-key options)
         sign-req?   (:sign options)
         req-body    (when req-data (-> req-data edn/read-string json/encode))
         req         (cond-> {:url     endpoint
