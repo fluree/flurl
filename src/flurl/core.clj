@@ -42,7 +42,7 @@
 
 (defn error-msg [errors]
   (str "The following errors occurred while parsing your command:\n\n"
-       (str/join \newline errors)))
+       (str/join \newline (map #(marker :red %) errors))))
 
 (defn validate-args [args]
   (let [{:keys [options arguments errors summary]} (parse-opts args cli-opts)]
