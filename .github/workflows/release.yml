@@ -13,12 +13,16 @@ jobs:
     outputs:
       upload_url: ${{ steps.create-release.outputs.upload_url }}
     steps:
+      - name: get current datetime
+        uses: gerred/actions/current-time@master
+        id: current-time
       - name: create release
         id: create-release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          tag_name: ${{ steps.current-time.outputs.time }}
           release_name: Latest main branch build
           body: |
             ## Installation
