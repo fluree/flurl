@@ -28,6 +28,12 @@ jobs:
             1. Put in your PATH somewhere
             1. Make it executable: `chmod +x flurl`
             1. On macOS: Run `xattr -d com.apple.quarantine flurl`
+
+            Note that these are all amd64 binaries for now. Once GraalVM
+            supports macOS on Apple silicon and GitHub Actions supports it too,
+            we'll add a build for that. Building Linux arm64 binaries can
+            happen once GitHub's action runners support it (GraalVM already
+            does).
           draft: false
           prerelease: false
   build:
