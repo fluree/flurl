@@ -14,8 +14,9 @@ jobs:
       upload_url: ${{ steps.create-release.outputs.upload_url }}
     steps:
       - name: get current datetime
-        uses: gerred/actions/current-time@master
         id: current-time
+        run: |
+          echo "::set-output name=time::$(date +'%Y%m%d%H%M%S')"
       - name: create release
         id: create-release
         uses: actions/create-release@v1
