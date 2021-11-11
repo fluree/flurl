@@ -32,6 +32,7 @@ jobs:
           prerelease: false
   build:
     runs-on: ${{ matrix.os }}
+    needs: create-release
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
