@@ -22,9 +22,12 @@ jobs:
           tag_name: latest
           release_name: Latest main branch build
           body: |
-            Download the file for your OS, rename it to `flurl`, put in your
-            PATH somewhere, and make it executable (`chmod +x flurl`).
-            Note on macOS: You'll need to run `xattr -d com.apple.quarantine flurl` on it too.
+            ## Installation
+            1. Download the file for your OS
+            1. Rename it to `flurl`
+            1. Put in your PATH somewhere
+            1. Make it executable: `chmod +x flurl`
+            1. On macOS: Run `xattr -d com.apple.quarantine flurl`
           draft: false
           prerelease: false
   build:
