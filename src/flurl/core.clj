@@ -34,7 +34,7 @@
         ""
         "Usage: flurl [options] api-endpoint [request-data]"
         " - api-endpoint should be a Fluree ledger API URL like http://localhost:8090/fdb/dbs"
-        " - request-data is any data your request needs to send in JSON or EDN format (e.g. {\"select\": [\"*\"] \"from\": \"_user\"})"
+        " - request-data is any data your request needs to send in JSON or EDN format (e.g. {\"select\": [\"*\"], \"from\": \"_user\"})"
         ""
         "Options:"
         options-summary

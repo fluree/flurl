@@ -9,11 +9,12 @@ Its name is a riff on curl since it kind of works similarly.
 `flurl [options] api-endpoint [request-data]`
 
  - api-endpoint should be a Fluree ledger API URL like `http://localhost:8090/fdb/dbs`
- - request-data is any data your request needs to send in EDN format (e.g. `{:select ["*"] :from "_user"}`)
+ - request-data is any data your request needs to send in JSON or EDN format (e.g. `{"select": ["*"], "from": "_user"}`)
 
 ### Options
  - -d, --debug           Turn on debugging output
  - -h, --help            Print help
+ - -e, --edn             Use EDN for request-data instead of JSON
  - -s, --sign            Enable request signing
  - -k, --private-key KEY Provide a private key or file containing one to sign requests with (defaults to `./private-key.txt`)
 
