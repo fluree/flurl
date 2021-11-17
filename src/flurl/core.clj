@@ -19,8 +19,9 @@
 
 (def cli-opts
   [["-d" "--debug" "Turn on debugging output"]
-   ["-h" "--help"  "Print this message"]
-   ["-s" "--sign"  "Enable request signing"]
+   ["-h" "--help" "Print this message"]
+   ["-e" "--edn" "Use EDN for request-data instead of JSON"]
+   ["-s" "--sign" "Enable request signing"]
    ["-k" "--private-key KEY"
     "Provide a private key or file containing one to sign requests with"
     :default (get-private-key "./private-key.txt")
@@ -33,7 +34,7 @@
         ""
         "Usage: flurl [options] api-endpoint [request-data]"
         " - api-endpoint should be a Fluree ledger API URL like http://localhost:8090/fdb/dbs"
-        " - request-data is any data your request needs to send in EDN format (e.g. {:select [\"*\"] :from \"_user\"})"
+        " - request-data is any data your request needs to send in JSON or EDN format (e.g. {\"select\": [\"*\"] \"from\": \"_user\"})"
         ""
         "Options:"
         options-summary
@@ -68,21 +69,23 @@
 
 (defn run [{:keys [endpoint req-data options]}]
   (when (:debug options) (debug/activate!))
-  (let [private-key (:private-key options)
-        sign-req?   (:sign options)
-        req-body    (when req-data (-> req-data edn/read-string json/encode))
-        req         (cond-> {:url     endpoint
-                             :method  :get
-                             :headers {"content-type" "application/json"}
-                             :output  :auto}
+  (let [private-key     (:private-key options)
+        sign-req?       (:sign options)
+        use-edn?        (:edn options)
+        req-data-parser (if use-edn? (comp json/encode edn/read-string) identity)
+        req-body        (when req-data (req-data-parser req-data))
+        req             (cond-> {:url     endpoint
+                                 :method  :get
+                                 :headers {"content-type" "application/json"}
+                                 :output  :auto}
 
-                      req-body
-                      (assoc :method :post, :body req-body)
+                                req-body
+                                (assoc :method :post, :body req-body)
 
-                      sign-req?
-                      (client/sign-request private-key))
-        _           (debug/print "API request:" (pr-str req))
-        result      (client/send-request req)]
+                                sign-req?
+                                (client/sign-request private-key))
+        _               (debug/print "API request:" (pr-str req))
+        result          (client/send-request req)]
     (debug/print "API response:" (pr-str result))
     (when (or (:error result) (< 299 (:status result)))
       (print (marker :red (str (:status result) " ERROR: "))))
