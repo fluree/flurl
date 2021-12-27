@@ -17,11 +17,9 @@
 
 (defn signing-string [req]
   (let [url    (-> req :url URL.)
-        host   (str/lower-case (.getHost url))
         path   (str/lower-case (.getPath url))
         method (-> req :method name str/lower-case)]
     (str/join "\n" [(str "(request-target): " method " " path)
-                    (str "host: " host)
                     (str "date: " (get-in req [:headers "date"]))
                     (str "digest: " (get-in req [:headers "digest"]))])))
 
@@ -37,7 +35,7 @@
     (debug/print "Signing string:" (pr-str sign-string))
     (assoc-in req-to-sign [:headers "signature"]
               (format "keyId=\"%s\",headers=\"%s\",algorithm=\"%s\",signature=\"%s\""
-                      "na" "(request-target) host date digest" "ecdsa-sha256"
+                      "na" "(request-target) date digest" "ecdsa-sha256"
                       sig))))
 
 (defn send-request [req]
