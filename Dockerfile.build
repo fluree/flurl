@@ -1,0 +1,21 @@
+FROM clojure:tools-deps-1.10.3.1040-slim-bullseye AS clojure
+
+FROM ghcr.io/graalvm/graalvm-ce:latest AS graal
+
+RUN microdnf install git
+RUN gu install native-image
+
+COPY --from=clojure /usr/local/bin/clojure /usr/local/bin/clojure
+COPY --from=clojure /usr/local/lib/clojure /usr/local/lib/clojure
+
+WORKDIR /usr/src/flurl
+
+COPY deps.edn ./
+
+RUN clojure -A:native-image -P
+
+COPY . .
+
+RUN clojure -M:native-image && mv flurl /usr/local/bin/flurl
+
+ENTRYPOINT ["/usr/local/bin/flurl"]
