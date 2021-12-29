@@ -11,10 +11,17 @@
 
 (def private-key-regex #"^[a-fA-F0-9]{64}$")
 
+(defn private-key-literal-or-file? [v]
+  (or (re-matches private-key-regex v)
+      (let [f (io/file v)]
+        (when (.exists f)
+          (->> f slurp (re-matches private-key-regex))))))
+
 (defn get-private-key [key-or-file]
   (if (re-matches private-key-regex key-or-file)
     key-or-file
     (when (.exists (io/file key-or-file))
+      (debug/print "Reading private key from" key-or-file)
       (slurp key-or-file))))
 
 (def cli-opts
@@ -24,10 +31,8 @@
    ["-s" "--sign" "Enable request signing"]
    ["-k" "--private-key KEY"
     "Provide a private key or file containing one to sign requests with"
-    :default (get-private-key "./private-key.txt")
-    :default-desc "./private-key.txt"
-    :parse-fn get-private-key
-    :validate [#(and % (re-matches private-key-regex %) "Must be 64 hex digits")]]])
+    :default "./default-private-key.txt"
+    :validate [private-key-literal-or-file? "Must be 64 hex digits or path to a file containing the same"]]])
 
 (defn usage [options-summary]
   (->> ["flurl is for sending and optionally signing API requests to Fluree ledger server's HTTP API"
@@ -46,7 +51,8 @@
        (str/join \newline (map #(marker :red %) errors))))
 
 (defn validate-args [args]
-  (let [{:keys [options arguments errors summary]} (parse-opts args cli-opts)]
+  (let [{:keys [options arguments errors summary]} (parse-opts args cli-opts)
+        pk (-> options :private-key get-private-key)]
     (cond
       (:help options)
       {:exit-message (usage summary) :ok? true}
@@ -54,7 +60,7 @@
       errors
       {:exit-message (error-msg errors)}
 
-      (and (:sign options) (not (:private-key options)))
+      (and (:sign options) (not pk))
       {:exit-message (error-msg ["Request signing requires a valid private key"])}
 
       (< 0 (count arguments) 3)
@@ -69,7 +75,7 @@
 
 (defn run [{:keys [endpoint req-data options]}]
   (when (:debug options) (debug/activate!))
-  (let [private-key     (:private-key options)
+  (let [private-key     (-> options :private-key get-private-key)
         sign-req?       (:sign options)
         use-edn?        (:edn options)
         req-data-parser (if use-edn? (comp json/encode edn/read-string) identity)

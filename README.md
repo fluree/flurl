@@ -16,7 +16,7 @@ Its name is a riff on curl since it kind of works similarly.
  - -h, --help            Print help
  - -e, --edn             Use EDN for request-data instead of JSON
  - -s, --sign            Enable request signing
- - -k, --private-key KEY Provide a private key or file containing one to sign requests with (defaults to `./private-key.txt`)
+ - -k, --private-key KEY Provide a private key or file containing one to sign requests with (defaults to `./default-private-key.txt`)
 
 ## Building
 
