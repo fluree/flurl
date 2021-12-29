@@ -6,7 +6,9 @@
             [clojure.tools.cli :refer [parse-opts]]
             [marker.core :refer [marker]]
             [flurl.debug :as debug]
-            [flurl.ledger-client :as client])
+            [flurl.ledger-client :as client]
+            [flurl.date-time :as date-time])
+  (:import (java.time ZonedDateTime))
   (:gen-class))
 
 (def private-key-regex #"^[a-fA-F0-9]{64}$")
@@ -29,6 +31,13 @@
    ["-h" "--help" "Print this message"]
    ["-e" "--edn" "Use EDN for request-data instead of JSON"]
    ["-s" "--sign" "Enable request signing"]
+   ["-t" "--date DATE"
+    (str "Use this date for signing instead of \"now\". "
+         "Supports datetimes formatted as either RFC-1123 or "
+         date-time/basic-date-time-formatter)
+    :default (ZonedDateTime/now)
+    :parse-fn date-time/parse
+    :default-desc "now"]
    ["-k" "--private-key KEY"
     "Provide a private key or file containing one to sign requests with"
     :default "./default-private-key.txt"
@@ -78,8 +87,10 @@
   (let [private-key     (-> options :private-key get-private-key)
         sign-req?       (:sign options)
         use-edn?        (:edn options)
+        signing-date    (:date options)
         req-data-parser (if use-edn? (comp json/encode edn/read-string) identity)
         req-body        (when req-data (req-data-parser req-data))
+        sign-req        (partial client/sign-request private-key signing-date)
         req             (cond-> {:url     endpoint
                                  :method  :get
                                  :headers {"content-type" "application/json"}
@@ -89,7 +100,7 @@
                                 (assoc :method :post, :body req-body)
 
                                 sign-req?
-                                (client/sign-request private-key))
+                                sign-req)
         _               (debug/print "API request:" (pr-str req))
         result          (client/send-request req)]
     (debug/print "API response:" (pr-str result))

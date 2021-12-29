@@ -1,11 +1,17 @@
-{:deps {org.clojure/clojure   {:mvn/version "1.10.3"}
-        org.clojure/tools.cli {:mvn/version "1.0.206"}
-        http-kit/http-kit     {:mvn/version "2.5.3"}
-        com.fluree/crypto     {:mvn/version "0.3.6"}
-        cheshire/cheshire     {:mvn/version "5.10.1"}
-        marker/marker         {:mvn/version "1.0.1"}}
- :aliases 
- {:native-image
+{:deps {org.clojure/clojure         {:mvn/version "1.10.3"}
+        org.clojure/tools.cli       {:mvn/version "1.0.206"}
+        http-kit/http-kit           {:mvn/version "2.5.3"}
+        com.fluree/crypto           {:mvn/version "0.3.7"}
+        cheshire/cheshire           {:mvn/version "5.10.1"}
+        marker/marker               {:mvn/version "1.0.1"}
+        cap10morgan/parse-date-time {:git/url "https://github.com/cap10morgan/parse-date-time"
+                                     :sha     "c9dc90d840d46e43bc5038d885a67d8732a65e78"}}
+ :aliases
+ {:build
+  {:deps       {io.github.seancorfield/build-clj
+                {:git/tag "v0.5.3" :git/sha "dbf7321"}}
+   :ns-default build}
+  :native-image
   {:main-opts ["-m" "clj.native-image" "flurl.core"
                "-H:Name=flurl"
                "--initialize-at-build-time"
@@ -17,4 +23,5 @@
    :extra-deps
    {clj.native-image/clj.native-image
     {:git/url "https://github.com/taylorwood/clj.native-image.git"
-     :sha "4604ae76855e09cdabc0a2ecc5a7de2cc5b775d6"}}}}}
+     :sha     "4604ae76855e09cdabc0a2ecc5a7de2cc5b775d6"}}}}}
+
