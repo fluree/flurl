@@ -1,0 +1,9 @@
+.git/
+flurl
+.idea/
+.clj-kondo/
+.calva/
+.github/
+.lsp/
+classes/
+target/
