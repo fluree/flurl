@@ -3,3 +3,5 @@
 /flurl
 /flurl.build_artifacts.txt
 /target
+/.nrepl-port
+/default-private-key.txt
