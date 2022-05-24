@@ -1,15 +1,16 @@
-{:deps {org.clojure/clojure         {:mvn/version "1.10.3"}
+{:deps {org.clojure/clojure         {:mvn/version "1.11.1"}
         org.clojure/tools.cli       {:mvn/version "1.0.206"}
         http-kit/http-kit           {:mvn/version "2.5.3"}
-        com.fluree/crypto           {:mvn/version "0.3.7"}
-        cheshire/cheshire           {:mvn/version "5.10.1"}
+        com.fluree/crypto           {:mvn/version "0.3.9"}
+        cheshire/cheshire           {:mvn/version "5.10.2"}
         marker/marker               {:mvn/version "1.0.1"}
         cap10morgan/parse-date-time {:git/url "https://github.com/cap10morgan/parse-date-time"
                                      :sha     "c9dc90d840d46e43bc5038d885a67d8732a65e78"}}
  :aliases
  {:build
   {:deps       {io.github.seancorfield/build-clj
-                {:git/tag "v0.5.3" :git/sha "dbf7321"}}
+                {:git/tag "v0.8.0" :git/sha "9bd8b8a"
+                 :deps/root "slim"}}
    :ns-default build}
   :native-image
   {:main-opts ["-m" "clj.native-image" "flurl.core"
