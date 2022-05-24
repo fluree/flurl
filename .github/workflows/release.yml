@@ -52,6 +52,7 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v3.3.0
         with:
+          distribution: temurin
           java-version: 17
       - name: Setup Clojure
         uses: DeLaGuardo/setup-clojure@5.1
