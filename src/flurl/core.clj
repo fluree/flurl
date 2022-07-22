@@ -48,7 +48,7 @@
         ""
         "Usage: flurl [options] api-endpoint [request-data]"
         " - api-endpoint should be a Fluree ledger API URL like http://localhost:8090/fdb/dbs"
-        " - request-data is any data your request needs to send in JSON or EDN format (e.g. {\"select\": [\"*\"], \"from\": \"_user\"})"
+        " - request-data is any data your request needs to send in JSON or EDN format (e.g. {\"select\": [\"*\"], \"from\": \"_user\"}) or '-' to read from stdin"
         ""
         "Options:"
         options-summary
@@ -88,6 +88,7 @@
         sign-req?       (:sign options)
         use-edn?        (:edn options)
         signing-date    (:date options)
+        req-data        (if (= "-" req-data) (slurp *in*) req-data)
         req-data-parser (if use-edn? (comp json/encode edn/read-string) identity)
         req-body        (when req-data (req-data-parser req-data))
         sign-req        (partial client/sign-request private-key signing-date)
